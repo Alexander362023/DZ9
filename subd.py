@@ -7,42 +7,38 @@ with psycopg2.connect(database='DS1', user='postgres', password='sfdr34wrtyi') a
     with conn.cursor() as cur:        
         cur.execute("DROP TABLE Client; DROP TABLE Email; DROP TABLE Telephone;")
 
-def DS1(cursor, d, f):
-    '''запрос SQL'''
-    cur.execute(
-        'CREATE TABLE if not exists Client(client_id SERIAL PRIMARY KEY, \
-        Name VARCHAR(50) UNIQUE NOT null, \
-        Surname VARCHAR(50) UNIQUE NOT null);')
-        
-    cur.execute(             
-            "INSERT INTO Client(Name, Surname) VALUES(%s), (%s);", d, f)
-    return cur.fetchone() 
-
-Na =['Сидоров', 'Петров', 'Иванов'] 
-for u in Na:
-    u1 = u
-Sur = ['Том', 'Боб', 'Джек'] 
-for w in Sur:
-    w1 = w
-r = DS1(cur, u1, w1)
-print(r)
-
-def DS2(cursor, s):
-    cur.execute(
-        'CREATE TABLE if not exists Email(email_id SERIAL PRIMARY KEY, \
-        email VARCHAR(50) UNIQUE NOT null, \
-        Client integer references Client(client_id));')
+        def DS1(cursor, d, f):
+            '''запрос SQL'''
+            cur.execute(
+                'CREATE TABLE if not exists Client(client_id SERIAL PRIMARY KEY, \
+                Name VARCHAR(50) UNIQUE NOT null, \
+                Surname VARCHAR(50) UNIQUE NOT null);')
+            for u, w in zip(d, f):
+                u1 = u
+                w1 = w
+                print(u1, w1)
+            
+            cur.execute(             
+                "INSERT INTO Client(Name, Surname) VALUES(%s, %s);", (d, f,))   
+          
+            conn.commit()    
     
-    cur.execute(             
-            'INSERT INTO Telephone(telephone) VALUES(%s);', s)
-    return cur.fetchone()
+            Na =['Сидоров', 'Петров', 'Иванов']         
+            Sur = ['Том', 'Боб', 'Джек']    
+            DS1(cur, Na, Sur)
 
-em = [8988756431, 8956574631]
-for t in em: 
-    t1 = t
 
-emai = DS2(cur, t1)
-print(t1)
+        def DS2(cursor):
+            cur.execute(
+                'CREATE TABLE if not exists Email(email_id SERIAL PRIMARY KEY, \
+                email VARCHAR(50) UNIQUE NOT null, \
+                Client integer references Client(client_id));')
+    
+            cur.execute(             
+                'INSERT INTO Telephone(telephone) VALUES(%s);', (89876541287,))
+            return cur.fetchmany()
+        emai = DS2(cur)
+        print(emai)    
     
     cur.execute(
         'CREATE TABLE if not exists Telephone(telephone_id SERIAL PRIMARY KEY, \
@@ -85,14 +81,14 @@ def DS4():
 DS4()
 
 def DS5():
-    cur.execute('DROP FROM Telephone WHERE telephone=%s;', (8988756431))  
+    cur.execute('DELETE FROM Telephone WHERE telephone=%s;', (8988756431))  
     print(cur.fetchone())
     conn.connection.commit()
 DS5()
 
 def DS6():
-    cur.execute('DROP FROM Telephone WHERE telephone=%s, telephone_id=%s;', (8988756431, 'Client'))          
-    cur.execute('DROP FROM Client WHERE Name=%s, Surname=%s;', ('Сидоров', 'Иван'))          
+    cur.execute('DELETE FROM Telephone WHERE telephone=%s, telephone_id=%s;', (8988756431, 'Client'))          
+    cur.execute('DELETE FROM Client WHERE Name=%s, Surname=%s;', ('Сидоров', 'Иван'))          
     print(cur.fetchone())
     conn.connection.commit()
 DS6()
